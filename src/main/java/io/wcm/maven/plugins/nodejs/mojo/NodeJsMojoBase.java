@@ -74,10 +74,12 @@ public abstract class NodeJsMojoBase extends AbstractMojo {
 
     NodeInstallationInformation information = getOrInstallNodeJS();
 
-    for (Task task : tasks) {
-      task.setBaseDir(baseDir);
-      task.setLog(getLog());
-      task.execute(information);
+    if (tasks != null) {
+      for (Task task : tasks) {
+        task.setBaseDir(baseDir);
+        task.setLog(getLog());
+        task.execute(information);
+      }
     }
   }
 
