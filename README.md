@@ -12,8 +12,8 @@ Following configuration will install nodejs and npm in the /tmp/nodejs folder in
 ```
 <plugin>
 
-  <groupId>de.provision.maven.plugins</groupId>
-  <artifactId>maven-nodejs-plugin</artifactId>
+  <groupId>io.wcm.maven.plugins</groupId>
+  <artifactId>nodejs-maven-plugin</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <npmVersion>1.2.23</npmVersion>
   <nodeJsVersion>0.8.19</nodeJsVersion>
@@ -83,8 +83,8 @@ The task will first check, if the karma module is installed. If not, the module 
 Below is a coplete configuration for the execution of the npm install taks in a directory with package.json and execution of the grunt:
 
       <plugin>
-        <groupId>de.provision.maven.plugins</groupId>
-        <artifactId>maven-nodejs-plugin</artifactId>
+        <groupId>io.wcm.maven.plugins</groupId>
+        <artifactId>nodejs-maven-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <executions>
           <execution>
