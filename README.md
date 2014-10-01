@@ -15,9 +15,6 @@ Following configuration will install nodejs and npm in the /tmp/nodejs folder in
   <groupId>io.wcm.maven.plugins</groupId>
   <artifactId>nodejs-maven-plugin</artifactId>
   <version>0.1.0-SNAPSHOT</version>
-  <npmVersion>1.2.23</npmVersion>
-  <nodeJsVersion>0.10.32</nodeJsVersion>
-  <nodeJsDirectory>/tmp/nodejs</nodeJsDirectory>
   <executions>
     <execution>
       <phase>compile</phase>
@@ -25,6 +22,9 @@ Following configuration will install nodejs and npm in the /tmp/nodejs folder in
     </execution>
   </executions>
   <configuration>
+    <npmVersion>1.2.23</npmVersion>
+    <nodeJsVersion>0.10.32</nodeJsVersion>
+    <nodeJsDirectory>/tmp/nodejs</nodeJsDirectory>
     <tasks>
       <nodeJsTask>
         <workingDirectory>${project.basedir}/src/test/javascript/</workingDirectory>
@@ -39,6 +39,8 @@ Following configuration will install nodejs and npm in the /tmp/nodejs folder in
 
   </plugin>
 ```
+
+Per default the 0.10.32 nodejs and 1.4.9 npm versions are used.
 
 ### Supported Platforms
 
