@@ -42,18 +42,15 @@ public abstract class NodeJsMojoBase extends AbstractMojo {
   @Parameter
   protected String nodeJsURL;
 
-  @Parameter(defaultValue = "0.10.26")
+  @Parameter(defaultValue = "0.10.32")
   protected String nodeJsVersion;
 
-  @Parameter(defaultValue = "1.4.3")
+  @Parameter(defaultValue = "1.4.9")
   protected String npmVersion;
 
   @Parameter
   protected List<? extends Task> tasks;
-
-  @Parameter(defaultValue = "${basedir}")
-  private String baseDir;
-
+  
   @Parameter
   protected boolean stopOnError;
 
@@ -76,7 +73,6 @@ public abstract class NodeJsMojoBase extends AbstractMojo {
 
     if (tasks != null) {
       for (Task task : tasks) {
-        task.setBaseDir(baseDir);
         task.setLog(getLog());
         task.execute(information);
       }

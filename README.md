@@ -14,9 +14,9 @@ Following configuration will install nodejs and npm in the /tmp/nodejs folder in
 
   <groupId>io.wcm.maven.plugins</groupId>
   <artifactId>nodejs-maven-plugin</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <npmVersion>1.2.23</npmVersion>
-  <nodeJsVersion>0.8.19</nodeJsVersion>
+  <nodeJsVersion>0.10.32</nodeJsVersion>
   <nodeJsDirectory>/tmp/nodejs</nodeJsDirectory>
   <executions>
     <execution>

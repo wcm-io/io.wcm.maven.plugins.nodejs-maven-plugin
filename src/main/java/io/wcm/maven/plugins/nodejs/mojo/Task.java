@@ -101,18 +101,6 @@ public class Task {
     this.log = log;
   }
 
-
-  @SuppressWarnings("javadoc")
-  public String getBaseDir() {
-    return baseDir;
-  }
-
-
-  @SuppressWarnings("javadoc")
-  public void setBaseDir(String baseDir) {
-    this.baseDir = baseDir;
-  }
-
   private static class CustomNodeJsLogStreamConsumer implements StreamConsumer {
 
     protected Log logger;

@@ -73,7 +73,7 @@ public class NodeJsTask extends Task {
 
   private String installModule(NodeInstallationInformation information) throws MojoExecutionException {
     String modulePath = "";
-    String localInstallationPath = getBaseDir() + File.separator + "node_modules" + File.separator + moduleName;
+    String localInstallationPath = workingDirectory.getAbsolutePath() + File.separator + "node_modules" + File.separator + moduleName;
     File localInstallation = new File(localInstallationPath);
 
     if (!localInstallation.exists()) {
@@ -83,7 +83,7 @@ public class NodeJsTask extends Task {
         NpmInstallTask installTask = new NpmInstallTask();
         installTask.setLog(getLog());
         installTask.setArguments(new String[] {
-            "--prefix", information.getBasePath() + "node_modules", moduleName
+            "--prefix", information.getBasePath(), moduleName
         });
         installTask.execute(information);
       }
@@ -95,7 +95,7 @@ public class NodeJsTask extends Task {
 
     return modulePath;
   }
-
+  
   private String getModuleExecutable(String modulePath) {
     String executable = executableName == null ? moduleName : executableName;
     return modulePath + File.separator + "bin" + File.separator + executable;
