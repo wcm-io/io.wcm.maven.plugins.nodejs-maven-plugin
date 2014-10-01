@@ -1,5 +1,5 @@
-node-js-plugin
-==============
+nodejs-maven-plugin
+===================
 
 This plugin is based off https://github.com/ClearboxSystems/NodeJsMaven.
 
@@ -11,7 +11,6 @@ Wraps the nodejs executables (nodejs and npm) in a maven plugin. Provides follow
 Following configuration will install nodejs and npm in the /tmp/nodejs folder in the specified version.
 ```xml
 <plugin>
-
   <groupId>io.wcm.maven.plugins</groupId>
   <artifactId>nodejs-maven-plugin</artifactId>
   <version>1.0.0-SNAPSHOT</version>
@@ -36,7 +35,6 @@ Following configuration will install nodejs and npm in the /tmp/nodejs folder in
       </nodeJsTask>
     </tasks>
   </configuration>
-
 </plugin>
 ```
 
@@ -70,7 +68,7 @@ It is also possible to specify multiple arguments:
 </arguments>
 ```            
 Following configuration executes the karma moduel with argument "start":
-```
+```xml
 <nodeJsTask>
   <workingDirectory>${project.basedir}/src/test/javascript/</workingDirectory>
   <moduleName>karma</moduleName>
@@ -87,7 +85,7 @@ Below is a coplete configuration for the execution of the npm install taks in a 
 <plugin>
   <groupId>io.wcm.maven.plugins</groupId>
   <artifactId>nodejs-maven-plugin</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <executions>
     <execution>
       <phase>compile</phase>
