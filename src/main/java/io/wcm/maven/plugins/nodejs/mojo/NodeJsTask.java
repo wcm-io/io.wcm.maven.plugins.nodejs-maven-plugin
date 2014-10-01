@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,6 @@ import org.codehaus.plexus.util.cli.Commandline;
 /**
  * Wrapper around the execution of a nodejs module.
  */
-@SuppressWarnings("javadoc")
 public class NodeJsTask extends Task {
 
   @Parameter
@@ -54,8 +53,8 @@ public class NodeJsTask extends Task {
 
     setCommandlineWorkingDirectory(commandLine);
     commandLine.setExecutable(information.getNodeExecutable().getAbsolutePath());
-    
-	setNodeModule(commandLine, information);
+
+    setNodeModule(commandLine, information);
     if (arguments != null) {
       commandLine.addArguments(arguments);
     }
@@ -89,13 +88,14 @@ public class NodeJsTask extends Task {
       }
 
       modulePath = globalInstallationPath;
-    } else {
+    }
+    else {
       modulePath = localInstallationPath;
     }
 
     return modulePath;
   }
-  
+
   private String getModuleExecutable(String modulePath) {
     String executable = executableName == null ? moduleName : executableName;
     return modulePath + File.separator + "bin" + File.separator + executable;
