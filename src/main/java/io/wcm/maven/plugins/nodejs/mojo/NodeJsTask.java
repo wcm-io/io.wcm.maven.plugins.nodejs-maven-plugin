@@ -33,17 +33,29 @@ import org.codehaus.plexus.util.cli.Commandline;
  */
 public class NodeJsTask extends Task {
 
+  /**
+   * Name of the nodejs module
+   */
   @Parameter
-  public String moduleName;
+  private String moduleName;
 
+  /**
+   * Name of the module executable
+   */
   @Parameter
-  public String executableName;
+  private String executableName;
 
+  /**
+   * Version of the module
+   */
   @Parameter
-  public String moduleVersion;
+  private String moduleVersion;
 
+  /**
+   * Task arguments
+   */
   @Parameter
-  public String[] arguments;
+  private String[] arguments;
 
   @Override
   public Commandline getCommandline(NodeInstallationInformation information) throws MojoExecutionException {

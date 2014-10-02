@@ -78,6 +78,14 @@ public class NodeInstallationInformation {
     this.basePath = basePath;
   }
 
+  /**
+   * Creates a {@link NodeInstallationInformation} for a specific nodejs and npm version and directory
+   * @param version
+   * @param npmVersion
+   * @param directory
+   * @return {@link NodeInstallationInformation}
+   * @throws MojoExecutionException
+   */
   public static NodeInstallationInformation forVersion(String version, String npmVersion, File directory) throws MojoExecutionException {
     String baseURL = "http://nodejs.org/dist/v" + version + "/";
     String basePath = directory.getAbsolutePath() + File.separator;

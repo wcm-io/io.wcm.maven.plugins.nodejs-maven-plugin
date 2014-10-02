@@ -26,14 +26,27 @@ public class NodeJsPluginException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructor
+   * @param message Esception Message
+   */
   public NodeJsPluginException(String message) {
     super(message);
   }
 
+  /**
+   * Constructor
+   * @param cause
+   */
   public NodeJsPluginException(Throwable cause) {
     super(cause);
   }
 
+  /**
+   * Constructor
+   * @param message
+   * @param cause
+   */
   public NodeJsPluginException(String message, Throwable cause) {
     super(message, cause);
   }

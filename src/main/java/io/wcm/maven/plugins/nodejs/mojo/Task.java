@@ -33,7 +33,7 @@ import org.codehaus.plexus.util.cli.Commandline;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
- * General task implementation
+ * General task implementation.
  */
 public class Task {
 
@@ -41,17 +41,15 @@ public class Task {
   private static final Pattern WARNING_LOG_PATTERN = Pattern.compile(".*(warn).*", Pattern.CASE_INSENSITIVE);
 
   /**
-   * Directory in which the should be executed
+   * Directory in which the should be executed.
    */
   @Parameter
-  public File workingDirectory;
-
-  protected String baseDir;
+  protected File workingDirectory;
 
   private Log log;
 
   /**
-   * Executes the command line returned by {@link Task#getCommandline(NodeInstallationInformation)}
+   * Executes the command line returned by {@link Task#getCommandline(NodeInstallationInformation)}.
    * @param information
    * @throws MojoExecutionException
    */
