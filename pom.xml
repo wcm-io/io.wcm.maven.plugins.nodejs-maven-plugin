@@ -35,7 +35,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>Node.js Maven Plugin</name>
-  <description>Maven Plugin to wrap the Node.js execution</description>
+  <description>Maven Plugin to wrap the Node.js execution.</description>
 
   <scm>
     <connection>scm:git:git@github.com:wcm-io/wcm-io.git</connection>
