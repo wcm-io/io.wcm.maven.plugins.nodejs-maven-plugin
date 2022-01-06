@@ -47,7 +47,7 @@ The most prominent alternative to this plugin is the [frontend-maven-plugin][fro
 
 ### GitHub Repository
 
-Sources: https://github.com/wcm-io/nodejs-maven-plugin
+Sources: https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin
 
 
 [usage]: usage.html
