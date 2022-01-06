@@ -1,6 +1,7 @@
 <img src="https://wcm.io/images/favicon-16@2x.png"/> nodejs-maven-plugin
 ======
 [![Build](https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin/workflows/Build/badge.svg?branch=develop)](https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin/actions?query=workflow%3ABuild+branch%3Adevelop)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.wcm.maven.plugins/nodejs-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.wcm.maven.plugins/nodejs-maven-plugin)
 
 Maven Plugin to wrap the Node.js execution.
 
