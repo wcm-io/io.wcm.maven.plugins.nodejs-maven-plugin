@@ -51,6 +51,10 @@
 
     <!-- Enable reproducible builds -->
     <project.build.outputTimestamp>2021-12-21T11:05:25Z</project.build.outputTimestamp>
+
+    <!-- Enable recording of coverage during execution of maven-invoker-plugin -->
+    <jacoco.propertyName>invoker.mavenOpts</jacoco.propertyName>
+    <jacoco.includes>org.jacoco.maven.*</jacoco.includes>
   </properties>
 
   <prerequisites>
@@ -171,6 +175,21 @@
         </executions>
       </plugin>
 
+       <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+              <goal>prepare-agent-integration</goal>
+              <goal>report</goal>
+              <goal>report-integration</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-invoker-plugin</artifactId>
@@ -183,6 +202,9 @@
           </pomIncludes>
           <postBuildHookScript>verify</postBuildHookScript>
           <streamLogsOnFailures>true</streamLogsOnFailures>
+          <extraArtifacts>
+            <extraArtifact>org.jacoco:org.jacoco.agent:${jacoco-maven-plugin.version}:jar:runtime</extraArtifact>
+          </extraArtifacts>
         </configuration>
         <executions>
           <execution>
