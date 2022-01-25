@@ -140,8 +140,12 @@ public class NodeInstallationInformation {
       arch = "x64";
     }
     else if (Os.isArch("aarch64")) {
-      arch = "arm64";
-    }
+      if (Os.isFamily(Os.FAMILY_MAC) && Integer.parseInt(version.split("\\.")[0]) < 16) {
+          arch = "x64";
+        } else {
+          arch = "arm64";
+        }
+      }
     else {
       throw new MojoExecutionException("Unsupported OS arch: " + Os.OS_ARCH);
     }
