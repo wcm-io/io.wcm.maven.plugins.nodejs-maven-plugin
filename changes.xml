@@ -24,6 +24,9 @@
   <body>
 
     <release version="3.0.6" date="not released">
+      <action type="update" dev="mschulze">
+        MacOS/aarch64: Use x64 NodeJS versions below 16.
+      </action>
       <action type="update" dev="sseifert">
         Declare maven core dependencies as provided.
       </action>
