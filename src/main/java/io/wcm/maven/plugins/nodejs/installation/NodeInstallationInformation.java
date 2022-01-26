@@ -22,6 +22,8 @@ package io.wcm.maven.plugins.nodejs.installation;
 import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.Os;
@@ -132,6 +134,8 @@ public class NodeInstallationInformation {
    * @throws MojoExecutionException Mojo execution exception
    */
   public static NodeInstallationInformation forVersion(String version, String npmVersion, File directory) throws MojoExecutionException {
+    int nodejsMajorVersion = getMajorVersion(version);
+
     String arch;
     if (Os.isArch("x86") || Os.isArch("i386")) {
       arch = "x86";
@@ -140,12 +144,13 @@ public class NodeInstallationInformation {
       arch = "x64";
     }
     else if (Os.isArch("aarch64")) {
-      if (Os.isFamily(Os.FAMILY_MAC) && Integer.parseInt(version.split("\\.")[0]) < 16) {
-          arch = "x64";
-        } else {
-          arch = "arm64";
-        }
+      if (Os.isFamily(Os.FAMILY_MAC) && nodejsMajorVersion < 16) {
+        arch = "x64";
       }
+      else {
+        arch = "arm64";
+      }
+    }
     else {
       throw new MojoExecutionException("Unsupported OS arch: " + Os.OS_ARCH);
     }
@@ -189,6 +194,11 @@ public class NodeInstallationInformation {
     }
 
     return result;
+  }
+
+  private static int getMajorVersion(String version) {
+    ArtifactVersion versionInfo = new DefaultArtifactVersion(version);
+    return versionInfo.getMajorVersion();
   }
 
   private static String getNodeModulesRootPathNpmSuffix(String npmVersion) {
