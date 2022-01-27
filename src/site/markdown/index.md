@@ -45,6 +45,9 @@ The most prominent alternative to this plugin is the [frontend-maven-plugin][fro
 * The `nodejs-maven-plugin` supports downloading the NPM binaries via maven dependencies ([Maven NodeJS Proxy][maven-nodejs-proxy]) - this allows caching the binaries the same way all other maven binaries are cached, and also helps if all internet communication is locked down on your build systems despite the artifact manager.
 
 
+### GitHub Repository
+
+Sources: https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin
 
 
 [usage]: usage.html
