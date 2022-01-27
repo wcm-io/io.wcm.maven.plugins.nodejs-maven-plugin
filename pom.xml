@@ -31,7 +31,7 @@
 
   <groupId>io.wcm.maven.plugins</groupId>
   <artifactId>nodejs-maven-plugin</artifactId>
-  <version>3.0.6</version>
+  <version>3.0.7-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
 
   <name>Node.js Maven Plugin</name>
@@ -50,7 +50,7 @@
     <maven.version>3.0.5</maven.version>
 
     <!-- Enable reproducible builds -->
-    <project.build.outputTimestamp>2022-01-27T08:40:01Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2022-01-27T08:42:38Z</project.build.outputTimestamp>
 
     <!-- Enable recording of coverage during execution of maven-invoker-plugin -->
     <jacoco.propertyName>invoker.mavenOpts</jacoco.propertyName>
