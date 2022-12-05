@@ -47,7 +47,7 @@
 
   <properties>
     <site.url.module.prefix>tooling/maven/plugins/nodejs-maven-plugin</site.url.module.prefix>
-    <maven.version>3.0.5</maven.version>
+    <maven.version>3.8.6</maven.version>
 
     <!-- Enable reproducible builds -->
     <project.build.outputTimestamp>2022-01-27T08:42:38Z</project.build.outputTimestamp>
