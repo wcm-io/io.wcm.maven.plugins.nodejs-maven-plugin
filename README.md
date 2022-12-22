@@ -7,7 +7,7 @@
 Maven Plugin to wrap the Node.js execution.
 
 Documentation: https://wcm.io/tooling/maven/plugins/nodejs-maven-plugin/<br/>
-Issues: https://wcm-io.atlassian.net/browse/WTOOL<br/>
+Issues: https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin/issues<br/>
 Wiki: https://wcm-io.atlassian.net/wiki/<br/>
 Continuous Integration: https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin/actions<br/>
 Commercial support: https://wcm.io/commercial-support.html
