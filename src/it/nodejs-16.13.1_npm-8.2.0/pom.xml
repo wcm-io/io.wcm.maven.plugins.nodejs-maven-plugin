@@ -23,7 +23,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.wcm.maven.plugins.it</groupId>
-  <artifactId>nodejs-maven-plugin-nodejs-14.18.2</artifactId>
+  <artifactId>nodejs-maven-plugin-nodejs-16.13.1_npm-8.2.0</artifactId>
   <packaging>pom</packaging>
   <version>@project.version@</version>
 
