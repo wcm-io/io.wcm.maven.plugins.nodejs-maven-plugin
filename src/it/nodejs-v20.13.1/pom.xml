@@ -3,7 +3,7 @@
   #%L
   wcm.io
   %%
-  Copyright (C) 2021 wcm.io
+  Copyright (C) 2024 wcm.io
   %%
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.wcm.maven.plugins.it</groupId>
-  <artifactId>nodejs-maven-plugin-nodejs-16.13.1</artifactId>
+  <artifactId>nodejs-maven-plugin-nodejs-v20.13.1</artifactId>
   <packaging>pom</packaging>
   <version>@project.version@</version>
 
@@ -41,7 +41,7 @@
         </executions>
         <configuration>
           <nodeJsDirectory>${java.io.tmpdir}/nodejs-it</nodeJsDirectory>
-          <nodeJsVersion>16.13.1</nodeJsVersion>
+          <nodeJsVersion>v20.13.1</nodeJsVersion>
           <tasks>
             <npmInstallTask>
               <workingDirectory>${project.basedir}</workingDirectory>

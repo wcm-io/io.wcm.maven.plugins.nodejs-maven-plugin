@@ -25,6 +25,9 @@
 
     <release version="3.0.8" date="not released">
       <action type="update" dev="sseifert">
+        Allow to specify NodeJS version number with or without "v" prefix.
+      </action>
+      <action type="update" dev="sseifert">
         Switch to Java 11 as minimum version.
       </action>
     </release>

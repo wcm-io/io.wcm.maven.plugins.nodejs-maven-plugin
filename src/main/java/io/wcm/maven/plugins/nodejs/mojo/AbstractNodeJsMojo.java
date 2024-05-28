@@ -50,7 +50,7 @@ import io.wcm.maven.plugins.nodejs.installation.NodeUnarchiveTask;
 public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
   /**
-   * Node.js version (minimum version: 6.3.0).
+   * Node.js version (minimum version: 6.3.0). Can be specified with or without "v" prefix.
    */
   @Parameter(property = "nodejs.version", defaultValue = "10.15.3", required = true)
   protected String nodeJsVersion;
@@ -153,6 +153,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
     // validate nodejs version
     ComparableVersion nodeJsVersionComparable = new ComparableVersion(nodeJsVersion);
+    //ComparableVersion nodeJsVersionComparable = new ComparableVersion(StringUtils.removeStart(nodeJsVersion, "v"));
     if (nodeJsVersionComparable.compareTo(NODEJS_MIN_VERSION) < 0) {
       throw new MojoExecutionException("This plugin supports Node.js " + NODEJS_MIN_VERSION + " and up.");
     }
