@@ -152,8 +152,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
     }
 
     // validate nodejs version
-    ComparableVersion nodeJsVersionComparable = new ComparableVersion(nodeJsVersion);
-    //ComparableVersion nodeJsVersionComparable = new ComparableVersion(StringUtils.removeStart(nodeJsVersion, "v"));
+    ComparableVersion nodeJsVersionComparable = new ComparableVersion(StringUtils.removeStart(nodeJsVersion, "v"));
     if (nodeJsVersionComparable.compareTo(NODEJS_MIN_VERSION) < 0) {
       throw new MojoExecutionException("This plugin supports Node.js " + NODEJS_MIN_VERSION + " and up.");
     }
