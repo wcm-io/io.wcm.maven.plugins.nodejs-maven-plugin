@@ -3,7 +3,7 @@ About Node.js Maven Plugin
 
 Maven Plugin to wrap the Node.js execution.
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.wcm.maven.plugins/nodejs-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.wcm.maven.plugins/nodejs-maven-plugin)
+[![Maven Central](https://img.shields.io/maven-central/v/io.wcm.maven.plugins/nodejs-maven-plugin)](https://repo1.maven.org/maven2/io/wcm/maven/plugins/nodejs-maven-plugin)
 
 
 ### Documentation

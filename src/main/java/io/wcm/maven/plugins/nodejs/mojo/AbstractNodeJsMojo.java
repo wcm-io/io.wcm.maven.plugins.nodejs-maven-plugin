@@ -50,7 +50,7 @@ import io.wcm.maven.plugins.nodejs.installation.NodeUnarchiveTask;
 public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
   /**
-   * Node.js version (minimum version: 6.3.0).
+   * Node.js version (minimum version: 6.3.0). Can be specified with or without "v" prefix.
    */
   @Parameter(property = "nodejs.version", defaultValue = "10.15.3", required = true)
   protected String nodeJsVersion;
@@ -152,7 +152,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
     }
 
     // validate nodejs version
-    ComparableVersion nodeJsVersionComparable = new ComparableVersion(nodeJsVersion);
+    ComparableVersion nodeJsVersionComparable = new ComparableVersion(cleanupVersion(nodeJsVersion));
     if (nodeJsVersionComparable.compareTo(NODEJS_MIN_VERSION) < 0) {
       throw new MojoExecutionException("This plugin supports Node.js " + NODEJS_MIN_VERSION + " and up.");
     }
@@ -168,7 +168,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
   }
 
   private NodeInstallationInformation getOrInstallNodeJS() throws MojoExecutionException {
-    NodeInstallationInformation information = NodeInstallationInformation.forVersion(nodeJsVersion, npmVersion, nodeJsDirectory);
+    NodeInstallationInformation information = NodeInstallationInformation.forVersion(cleanupVersion(nodeJsVersion), npmVersion, nodeJsDirectory);
     try {
       if (!information.getNodeExecutable().exists() || !information.getNpmExecutableBundledWithNodeJs().exists()) {
         getLog().info("Install Node.js to " + information.getNodeJsInstallPath());
@@ -257,6 +257,15 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
       throw new MojoExecutionException("Unable to get artifact for " + dependency, ex);
     }
     return artifact.getFile();
+  }
+
+  /**
+   * Removes "v" prefix from version, if present.
+   * @param version Version number
+   * @return Version number
+   */
+  private static String cleanupVersion(String version) {
+    return StringUtils.removeStart(version, "v");
   }
 
 }
