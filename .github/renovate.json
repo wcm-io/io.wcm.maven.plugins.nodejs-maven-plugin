@@ -6,6 +6,6 @@
     "github>wcm-io/renovate-config:automerge-testing"
   ],
   "ignoreDeps": [
-    "maven.version"
+    "org.apache.maven:*"
   ]
 }
