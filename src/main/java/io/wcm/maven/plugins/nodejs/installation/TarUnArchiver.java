@@ -55,7 +55,7 @@ public class TarUnArchiver {
   public void unarchive(String baseDir) throws MojoExecutionException {
     try (FileInputStream fis = new FileInputStream(archive);
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(fis))) {
-      TarArchiveEntry tarEntry = tarIn.getNextTarEntry();
+      TarArchiveEntry tarEntry = tarIn.getNextEntry();
       while (tarEntry != null) {
         // Create a file for this tarEntry
         final File destPath = new File(baseDir + File.separator + tarEntry.getName());
@@ -74,7 +74,7 @@ public class TarUnArchiver {
             IOUtils.copy(tarIn, bout);
           }
         }
-        tarEntry = tarIn.getNextTarEntry();
+        tarEntry = tarIn.getNextEntry();
       }
     }
     catch (IOException ex) {

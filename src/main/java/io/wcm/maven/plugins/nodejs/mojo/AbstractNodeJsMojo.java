@@ -23,7 +23,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
@@ -36,7 +39,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
@@ -69,9 +71,11 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
   /**
    * Tasks that should be run on Node.js execution.
+   *
    * <p>
    * You can define different types of tasks: <code>npmInstallTask</code> or <code>nodeJsTask</code> items.
    * </p>
+   *
    * <p>
    * Example 1:
    * </p>
@@ -91,6 +95,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
    *   &lt;/nodeJsTask&gt;
    * &lt;/tasks&gt;
    * </pre>
+   *
    * <p>
    * Example 2:
    * </p>
@@ -131,9 +136,9 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
   private MavenProject project;
   @Parameter(defaultValue = "${session}", readonly = true)
   private MavenSession session;
-  @Component
+  @Inject
   private ArtifactHandlerManager artifactHandlerManager;
-  @Component
+  @Inject
   private ArtifactResolver resolver;
 
   private static final ComparableVersion NODEJS_MIN_VERSION = new ComparableVersion("6.3.0");
@@ -265,7 +270,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
    * @return Version number
    */
   private static String cleanupVersion(String version) {
-    return StringUtils.removeStart(version, "v");
+    return Strings.CS.removeStart(version, "v");
   }
 
 }

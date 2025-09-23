@@ -52,7 +52,7 @@ public class ZipUnArchiver {
   public void unarchive(String baseDir) throws MojoExecutionException {
     try (FileInputStream fis = new FileInputStream(archive);
         ZipArchiveInputStream zipIn = new ZipArchiveInputStream(fis)) {
-      ZipArchiveEntry zipEnry = zipIn.getNextZipEntry();
+      ZipArchiveEntry zipEnry = zipIn.getNextEntry();
       while (zipEnry != null) {
         // Create a file for this tarEntry
         final File destPath = new File(baseDir + File.separator + zipEnry.getName());
@@ -65,7 +65,7 @@ public class ZipUnArchiver {
             IOUtils.copy(zipIn, bout);
           }
         }
-        zipEnry = zipIn.getNextZipEntry();
+        zipEnry = zipIn.getNextEntry();
       }
     }
     catch (IOException ex) {
