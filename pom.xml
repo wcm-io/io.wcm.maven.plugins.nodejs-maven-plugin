@@ -18,14 +18,13 @@
   limitations under the License.
   #L%
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>io.wcm.maven</groupId>
     <artifactId>io.wcm.maven.parent</artifactId>
-    <version>2.3.2</version>
+    <version>2.4.0-SNAPSHOT</version>
     <relativePath />
   </parent>
 
@@ -41,9 +40,13 @@
   <scm>
     <connection>scm:git:https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin.git</connection>
     <developerConnection>scm:git:https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin.git</developerConnection>
-    <url>https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin</url>
     <tag>HEAD</tag>
+    <url>https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin</url>
   </scm>
+
+  <prerequisites>
+    <maven>${maven.version}</maven>
+  </prerequisites>
 
   <properties>
     <site.url.module.prefix>tooling/maven/plugins/nodejs-maven-plugin</site.url.module.prefix>
@@ -56,10 +59,6 @@
     <jacoco.propertyName>invoker.mavenOpts</jacoco.propertyName>
     <jacoco.includes>org.jacoco.maven.*</jacoco.includes>
   </properties>
-
-  <prerequisites>
-    <maven>${maven.version}</maven>
-  </prerequisites>
 
   <dependencies>
     <dependency>
@@ -158,7 +157,7 @@
             <id>before-integration-test-execution</id>
             <goals>
               <goal>prepare-agent-integration</goal>
-             </goals>
+            </goals>
             <configuration>
               <destFile>${project.build.directory}/jacoco-output/jacoco-integration-tests.exec</destFile>
               <propertyName>invoker.jacoco.args</propertyName>
@@ -166,10 +165,10 @@
           </execution>
           <execution>
             <id>merge-unit-and-integration</id>
-            <phase>post-integration-test</phase>
             <goals>
               <goal>merge</goal>
             </goals>
+            <phase>post-integration-test</phase>
             <configuration>
               <fileSets>
                 <fileSet>
