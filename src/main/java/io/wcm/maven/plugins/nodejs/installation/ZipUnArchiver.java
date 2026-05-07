@@ -23,16 +23,23 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Wrapper around the commons compress library to decompress the zip archives
+ * Wrapper around the commons compress library to decompress the zip archives.
+ *
+ * <p>
+ * Extraction is hardened against zip slip and zip bomb attacks via {@link SafeExtract}.
+ * See <a href="https://commons.apache.org/proper/commons-compress/security-reports.html">
+ * Commons Compress security recommendations</a> and
+ * <a href="https://rules.sonarsource.com/java/RSPEC-5042">SonarSource rule java:S5042</a>.
+ * </p>
  */
 public class ZipUnArchiver {
 
@@ -51,12 +58,17 @@ public class ZipUnArchiver {
    * @throws MojoExecutionException Mojo execution exception
    */
   public void unarchive(String baseDir) throws MojoExecutionException {
+    Path baseDirPath = Path.of(baseDir);
+    long entryCount = 0;
+    long totalBytes = 0;
     try (FileInputStream fis = new FileInputStream(archive);
         ZipArchiveInputStream zipIn = new ZipArchiveInputStream(fis)) {
       ZipArchiveEntry zipEntry = zipIn.getNextEntry();
       while (zipEntry != null) {
-        // Create a file for this zipEntry
-        final Path destPath = Path.of(baseDir, zipEntry.getName());
+        entryCount++;
+        SafeExtract.checkEntryCount(entryCount);
+        // resolve safely against the base directory (mitigates zip slip)
+        final Path destPath = SafeExtract.resolveSafely(baseDirPath, zipEntry.getName());
         if (zipEntry.isDirectory()) {
           Files.createDirectories(destPath);
         }
@@ -64,8 +76,8 @@ public class ZipUnArchiver {
           if (destPath.getParent() != null) {
             Files.createDirectories(destPath.getParent());
           }
-          try (BufferedOutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
-            IOUtils.copy(zipIn, bout);
+          try (OutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
+            totalBytes = SafeExtract.copyWithLimit(zipIn, bout, totalBytes);
           }
         }
         zipEntry = zipIn.getNextEntry();

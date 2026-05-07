@@ -23,6 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
@@ -31,11 +32,17 @@ import java.util.Set;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
 /**
- * Wrapper around the commons compress library to decompress the zipped tar archives
+ * Wrapper around the commons compress library to decompress the zipped tar archives.
+ *
+ * <p>
+ * Extraction is hardened against zip slip and zip bomb attacks via {@link SafeExtract}.
+ * See <a href="https://commons.apache.org/proper/commons-compress/security-reports.html">
+ * Commons Compress security recommendations</a> and
+ * <a href="https://rules.sonarsource.com/java/RSPEC-5042">SonarSource rule java:S5042</a>.
+ * </p>
  */
 public class TarUnArchiver {
 
@@ -54,13 +61,21 @@ public class TarUnArchiver {
    * @throws MojoExecutionException Mojo execution exception
    */
   public void unarchive(String baseDir) throws MojoExecutionException {
+    Path baseDirPath = Path.of(baseDir);
+    long entryCount = 0;
+    long totalBytes = 0;
     try (FileInputStream fis = new FileInputStream(archive);
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(fis))) {
       TarArchiveEntry tarEntry = tarIn.getNextEntry();
       while (tarEntry != null) {
-        // Create a file for this tarEntry
-        final Path destPath = Path.of(baseDir, tarEntry.getName());
+        entryCount++;
+        SafeExtract.checkEntryCount(entryCount);
+        // resolve safely against the base directory (mitigates zip slip)
+        final Path destPath = SafeExtract.resolveSafely(baseDirPath, tarEntry.getName());
         if (tarEntry.isSymbolicLink()) {
+          // ensure symlink target also stays within the base directory
+          SafeExtract.resolveSafely(destPath.getParent() != null ? destPath.getParent() : baseDirPath,
+              tarEntry.getLinkName());
           Path targetPath = Path.of(tarEntry.getLinkName());
           Files.createSymbolicLink(destPath, targetPath);
         }
@@ -71,8 +86,8 @@ public class TarUnArchiver {
           if (destPath.getParent() != null) {
             Files.createDirectories(destPath.getParent());
           }
-          try (BufferedOutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
-            IOUtils.copy(tarIn, bout);
+          try (OutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
+            totalBytes = SafeExtract.copyWithLimit(tarIn, bout, totalBytes);
           }
           // set executable permission via PosixFilePermissions when supported
           try {
