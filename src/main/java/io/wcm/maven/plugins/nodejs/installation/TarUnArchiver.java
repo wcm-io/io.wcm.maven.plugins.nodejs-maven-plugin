@@ -22,10 +22,11 @@ package io.wcm.maven.plugins.nodejs.installation;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -58,20 +59,30 @@ public class TarUnArchiver {
       TarArchiveEntry tarEntry = tarIn.getNextEntry();
       while (tarEntry != null) {
         // Create a file for this tarEntry
-        final File destPath = new File(baseDir + File.separator + tarEntry.getName());
+        final Path destPath = Path.of(baseDir, tarEntry.getName());
         if (tarEntry.isSymbolicLink()) {
-          Path linkPath = destPath.toPath();
-          Path targetPath = new File(tarEntry.getLinkName()).toPath();
-          Files.createSymbolicLink(linkPath, targetPath);
+          Path targetPath = Path.of(tarEntry.getLinkName());
+          Files.createSymbolicLink(destPath, targetPath);
         }
         else if (tarEntry.isDirectory()) {
-          destPath.mkdirs();
+          Files.createDirectories(destPath);
         }
         else {
-          destPath.createNewFile();
-          destPath.setExecutable(true);
-          try (BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(destPath))) {
+          if (destPath.getParent() != null) {
+            Files.createDirectories(destPath.getParent());
+          }
+          try (BufferedOutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
             IOUtils.copy(tarIn, bout);
+          }
+          // set executable permission via PosixFilePermissions when supported
+          try {
+            Set<PosixFilePermission> perms = Files.getPosixFilePermissions(destPath);
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+            perms.add(PosixFilePermission.GROUP_EXECUTE);
+            Files.setPosixFilePermissions(destPath, perms);
+          }
+          catch (UnsupportedOperationException ex) {
+            // not a POSIX file system (e.g. Windows) - skip setting permissions
           }
         }
         tarEntry = tarIn.getNextEntry();
@@ -82,7 +93,12 @@ public class TarUnArchiver {
     }
 
     // delete archive after extraction
-    archive.delete();
+    try {
+      Files.deleteIfExists(archive.toPath());
+    }
+    catch (IOException ex) {
+      throw new MojoExecutionException("Could not delete archive: " + archive.getAbsolutePath(), ex);
+    }
   }
 
 }

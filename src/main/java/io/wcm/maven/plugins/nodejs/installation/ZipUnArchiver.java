@@ -22,8 +22,9 @@ package io.wcm.maven.plugins.nodejs.installation;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
@@ -52,20 +53,22 @@ public class ZipUnArchiver {
   public void unarchive(String baseDir) throws MojoExecutionException {
     try (FileInputStream fis = new FileInputStream(archive);
         ZipArchiveInputStream zipIn = new ZipArchiveInputStream(fis)) {
-      ZipArchiveEntry zipEnry = zipIn.getNextEntry();
-      while (zipEnry != null) {
-        // Create a file for this tarEntry
-        final File destPath = new File(baseDir + File.separator + zipEnry.getName());
-        if (zipEnry.isDirectory()) {
-          destPath.mkdirs();
+      ZipArchiveEntry zipEntry = zipIn.getNextEntry();
+      while (zipEntry != null) {
+        // Create a file for this zipEntry
+        final Path destPath = Path.of(baseDir, zipEntry.getName());
+        if (zipEntry.isDirectory()) {
+          Files.createDirectories(destPath);
         }
         else {
-          destPath.createNewFile();
-          try (BufferedOutputStream bout = new BufferedOutputStream(new FileOutputStream(destPath))) {
+          if (destPath.getParent() != null) {
+            Files.createDirectories(destPath.getParent());
+          }
+          try (BufferedOutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
             IOUtils.copy(zipIn, bout);
           }
         }
-        zipEnry = zipIn.getNextEntry();
+        zipEntry = zipIn.getNextEntry();
       }
     }
     catch (IOException ex) {
@@ -73,7 +76,12 @@ public class ZipUnArchiver {
     }
 
     // delete archive after extraction
-    archive.delete();
+    try {
+      Files.deleteIfExists(archive.toPath());
+    }
+    catch (IOException ex) {
+      throw new MojoExecutionException("Could not delete archive: " + archive.getAbsolutePath(), ex);
+    }
   }
 
 }
