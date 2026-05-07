@@ -81,15 +81,50 @@ class TarUnArchiverTest {
     assertFalse(Files.exists(tempDir.getParent().resolve("evil.txt")));
   }
 
+  /**
+   * Regression test for the bug that rejected legitimate intra-archive relative symlinks such as
+   * the ones found in real Node.js distributions:
+   * bin/npm -> ../lib/node_modules/npm/bin/npm-cli.js
+   * The link target crosses a sibling directory boundary but remains inside the extraction root,
+   * so it must be accepted.
+   */
+  @Test
+  void testUnarchive_legitimateRelativeSymlink(@TempDir Path tempDir) throws IOException, MojoExecutionException {
+    File archive = tempDir.resolve("node-like.tar.gz").toFile();
+    byte[] scriptContent = "#!/usr/bin/env node".getBytes(StandardCharsets.UTF_8);
+    try (TarArchiveOutputStream tos = newTarGz(archive)) {
+      addDirEntry(tos, "node-v14/");
+      addDirEntry(tos, "node-v14/bin/");
+      addDirEntry(tos, "node-v14/lib/");
+      addDirEntry(tos, "node-v14/lib/node_modules/");
+      addDirEntry(tos, "node-v14/lib/node_modules/npm/");
+      addDirEntry(tos, "node-v14/lib/node_modules/npm/bin/");
+      addFileEntry(tos, "node-v14/lib/node_modules/npm/bin/npm-cli.js", scriptContent);
+      // This is the exact pattern used by Node.js tarballs:
+      //   node-v14/bin/npm -> ../lib/node_modules/npm/bin/npm-cli.js
+      addSymlinkEntry(tos, "node-v14/bin/npm", "../lib/node_modules/npm/bin/npm-cli.js");
+    }
+
+    Path target = tempDir.resolve("out");
+    Files.createDirectories(target);
+    // Must NOT throw – this was the bug
+    new TarUnArchiver(archive).unarchive(target.toString());
+
+    // The actual symlink file must have been created
+    Path symlink = target.resolve("node-v14/bin/npm");
+    assertTrue(Files.exists(symlink, java.nio.file.LinkOption.NOFOLLOW_LINKS),
+        "symlink node-v14/bin/npm must exist");
+    assertTrue(Files.isSymbolicLink(symlink), "node-v14/bin/npm must be a symlink");
+    assertEquals("../lib/node_modules/npm/bin/npm-cli.js",
+        Files.readSymbolicLink(symlink).toString().replace('\\', '/'),
+        "symlink target must be preserved verbatim");
+  }
+
   @Test
   void testUnarchive_symlinkEscapeRejected(@TempDir Path tempDir) throws IOException {
     File archive = tempDir.resolve("symlink-evil.tar.gz").toFile();
     try (TarArchiveOutputStream tos = newTarGz(archive)) {
-      TarArchiveEntry entry = new TarArchiveEntry("link", TarConstants.LF_SYMLINK);
-      // symlink target attempts to escape the destination directory
-      entry.setLinkName("../../../../etc/passwd");
-      tos.putArchiveEntry(entry);
-      tos.closeArchiveEntry();
+      addSymlinkEntry(tos, "link", "../../../../etc/passwd");
     }
 
     Path target = tempDir.resolve("out");
@@ -100,6 +135,28 @@ class TarUnArchiverTest {
     assertTrue(ex.getCause().getMessage().contains("outside of the target directory"));
     // symlink itself must not have been created
     assertFalse(Files.exists(target.resolve("link"), java.nio.file.LinkOption.NOFOLLOW_LINKS));
+  }
+
+  /**
+   * A symlink placed in a subdirectory whose target escapes the extraction root
+   * via enough {@code ..} segments must also be rejected.
+   */
+  @Test
+  void testUnarchive_symlinkEscapeFromSubdirRejected(@TempDir Path tempDir) throws IOException {
+    File archive = tempDir.resolve("symlink-subdir-evil.tar.gz").toFile();
+    try (TarArchiveOutputStream tos = newTarGz(archive)) {
+      addDirEntry(tos, "subdir/");
+      // subdir/evil -> ../../../../etc/passwd  (escapes extraction root)
+      addSymlinkEntry(tos, "subdir/evil", "../../../../etc/passwd");
+    }
+
+    Path target = tempDir.resolve("out");
+    Files.createDirectories(target);
+    MojoExecutionException ex = assertThrows(MojoExecutionException.class,
+        () -> new TarUnArchiver(archive).unarchive(target.toString()));
+    assertTrue(ex.getCause() instanceof IOException);
+    assertTrue(ex.getCause().getMessage().contains("outside of the target directory"));
+    assertFalse(Files.exists(target.resolve("subdir/evil"), java.nio.file.LinkOption.NOFOLLOW_LINKS));
   }
 
   private static TarArchiveOutputStream newTarGz(File archive) throws IOException {
@@ -117,6 +174,13 @@ class TarUnArchiverTest {
 
   private static void addDirEntry(TarArchiveOutputStream tos, String name) throws IOException {
     TarArchiveEntry entry = new TarArchiveEntry(name);
+    tos.putArchiveEntry(entry);
+    tos.closeArchiveEntry();
+  }
+
+  private static void addSymlinkEntry(TarArchiveOutputStream tos, String name, String linkTarget) throws IOException {
+    TarArchiveEntry entry = new TarArchiveEntry(name, TarConstants.LF_SYMLINK);
+    entry.setLinkName(linkTarget);
     tos.putArchiveEntry(entry);
     tos.closeArchiveEntry();
   }

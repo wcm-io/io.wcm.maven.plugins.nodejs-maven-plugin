@@ -73,9 +73,19 @@ public class TarUnArchiver {
         // resolve safely against the base directory (mitigates zip slip)
         final Path destPath = SafeExtract.resolveSafely(baseDirPath, tarEntry.getName());
         if (tarEntry.isSymbolicLink()) {
-          // ensure symlink target also stays within the base directory
-          SafeExtract.resolveSafely(destPath.getParent() != null ? destPath.getParent() : baseDirPath,
-              tarEntry.getLinkName());
+          // ensure symlink target stays within the base directory.
+          // Symlink targets are typically relative to the directory containing the symlink,
+          // so resolve them against the symlink's parent directory but verify the final
+          // location against the extraction base directory.
+          Path linkParent = destPath.getParent() != null ? destPath.getParent() : baseDirPath;
+          Path resolvedLinkTarget = linkParent.resolve(tarEntry.getLinkName()).normalize();
+          if (!resolvedLinkTarget.startsWith(baseDirPath.toAbsolutePath().normalize())) {
+            throw new IOException("Symbolic link target is outside of the target directory: "
+                + tarEntry.getName() + " -> " + tarEntry.getLinkName());
+          }
+          if (destPath.getParent() != null) {
+            Files.createDirectories(destPath.getParent());
+          }
           Path targetPath = Path.of(tarEntry.getLinkName());
           Files.createSymbolicLink(destPath, targetPath);
         }
