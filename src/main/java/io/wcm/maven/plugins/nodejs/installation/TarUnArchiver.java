@@ -62,56 +62,9 @@ public class TarUnArchiver {
    */
   public void unarchive(String baseDir) throws MojoExecutionException {
     Path baseDirPath = Path.of(baseDir);
-    long entryCount = 0;
-    long totalBytes = 0;
     try (FileInputStream fis = new FileInputStream(archive);
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new GzipCompressorInputStream(fis))) {
-      TarArchiveEntry tarEntry = tarIn.getNextEntry();
-      while (tarEntry != null) {
-        entryCount++;
-        SafeExtract.checkEntryCount(entryCount);
-        // resolve safely against the base directory (mitigates zip slip)
-        final Path destPath = SafeExtract.resolveSafely(baseDirPath, tarEntry.getName());
-        if (tarEntry.isSymbolicLink()) {
-          // ensure symlink target stays within the base directory.
-          // Symlink targets are typically relative to the directory containing the symlink,
-          // so resolve them against the symlink's parent directory but verify the final
-          // location against the extraction base directory.
-          Path linkParent = destPath.getParent() != null ? destPath.getParent() : baseDirPath;
-          Path resolvedLinkTarget = linkParent.resolve(tarEntry.getLinkName()).normalize();
-          if (!resolvedLinkTarget.startsWith(baseDirPath.toAbsolutePath().normalize())) {
-            throw new IOException("Symbolic link target is outside of the target directory: "
-                + tarEntry.getName() + " -> " + tarEntry.getLinkName());
-          }
-          if (destPath.getParent() != null) {
-            Files.createDirectories(destPath.getParent());
-          }
-          Path targetPath = Path.of(tarEntry.getLinkName());
-          Files.createSymbolicLink(destPath, targetPath);
-        }
-        else if (tarEntry.isDirectory()) {
-          Files.createDirectories(destPath);
-        }
-        else {
-          if (destPath.getParent() != null) {
-            Files.createDirectories(destPath.getParent());
-          }
-          try (OutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
-            totalBytes = SafeExtract.copyWithLimit(tarIn, bout, totalBytes);
-          }
-          // set executable permission via PosixFilePermissions when supported
-          try {
-            Set<PosixFilePermission> perms = Files.getPosixFilePermissions(destPath);
-            perms.add(PosixFilePermission.OWNER_EXECUTE);
-            perms.add(PosixFilePermission.GROUP_EXECUTE);
-            Files.setPosixFilePermissions(destPath, perms);
-          }
-          catch (UnsupportedOperationException ex) {
-            // not a POSIX file system (e.g. Windows) - skip setting permissions
-          }
-        }
-        tarEntry = tarIn.getNextEntry();
-      }
+      extractEntries(tarIn, baseDirPath);
     }
     catch (IOException ex) {
       throw new MojoExecutionException("Could not extract archive: " + archive.getAbsolutePath(), ex);
@@ -123,6 +76,70 @@ public class TarUnArchiver {
     }
     catch (IOException ex) {
       throw new MojoExecutionException("Could not delete archive: " + archive.getAbsolutePath(), ex);
+    }
+  }
+
+  private static void extractEntries(TarArchiveInputStream tarIn, Path baseDirPath) throws IOException {
+    long entryCount = 0;
+    long totalBytes = 0;
+    TarArchiveEntry tarEntry = tarIn.getNextEntry();
+    while (tarEntry != null) {
+      entryCount++;
+      SafeExtract.checkEntryCount(entryCount);
+      // resolve safely against the base directory (mitigates zip slip)
+      final Path destPath = SafeExtract.resolveSafely(baseDirPath, tarEntry.getName());
+      if (tarEntry.isSymbolicLink()) {
+        extractSymbolicLink(tarEntry, destPath, baseDirPath);
+      }
+      else if (tarEntry.isDirectory()) {
+        Files.createDirectories(destPath);
+      }
+      else {
+        totalBytes = extractFile(tarIn, destPath, totalBytes);
+      }
+      tarEntry = tarIn.getNextEntry();
+    }
+  }
+
+  private static void extractSymbolicLink(TarArchiveEntry tarEntry, Path destPath, Path baseDirPath) throws IOException {
+    // ensure symlink target stays within the base directory.
+    // Symlink targets are typically relative to the directory containing the symlink,
+    // so resolve them against the symlink's parent directory but verify the final
+    // location against the extraction base directory.
+    Path linkParent = destPath.getParent() != null ? destPath.getParent() : baseDirPath;
+    Path resolvedLinkTarget = linkParent.resolve(tarEntry.getLinkName()).normalize();
+    if (!resolvedLinkTarget.startsWith(baseDirPath.toAbsolutePath().normalize())) {
+      throw new IOException("Symbolic link target is outside of the target directory: "
+          + tarEntry.getName() + " -> " + tarEntry.getLinkName());
+    }
+    if (destPath.getParent() != null) {
+      Files.createDirectories(destPath.getParent());
+    }
+    Files.createSymbolicLink(destPath, Path.of(tarEntry.getLinkName()));
+  }
+
+  private static long extractFile(TarArchiveInputStream tarIn, Path destPath, long totalBytes) throws IOException {
+    if (destPath.getParent() != null) {
+      Files.createDirectories(destPath.getParent());
+    }
+    long newTotal;
+    try (OutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
+      newTotal = SafeExtract.copyWithLimit(tarIn, bout, totalBytes);
+    }
+    setExecutablePermissionsIfPosix(destPath);
+    return newTotal;
+  }
+
+  private static void setExecutablePermissionsIfPosix(Path destPath) throws IOException {
+    // set executable permission via PosixFilePermissions when supported
+    try {
+      Set<PosixFilePermission> perms = Files.getPosixFilePermissions(destPath);
+      perms.add(PosixFilePermission.OWNER_EXECUTE);
+      perms.add(PosixFilePermission.GROUP_EXECUTE);
+      Files.setPosixFilePermissions(destPath, perms);
+    }
+    catch (UnsupportedOperationException ex) {
+      // not a POSIX file system (e.g. Windows) - skip setting permissions
     }
   }
 
