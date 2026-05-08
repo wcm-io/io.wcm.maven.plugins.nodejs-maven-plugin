@@ -73,8 +73,9 @@ public class ZipUnArchiver {
           Files.createDirectories(destPath);
         }
         else {
-          if (destPath.getParent() != null) {
-            Files.createDirectories(destPath.getParent());
+          Path destParent = destPath.getParent();
+          if (destParent != null) {
+            Files.createDirectories(destParent);
           }
           try (OutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
             totalBytes = SafeExtract.copyWithLimit(zipIn, bout, totalBytes);

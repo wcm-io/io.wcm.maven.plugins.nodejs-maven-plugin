@@ -106,21 +106,23 @@ public class TarUnArchiver {
     // Symlink targets are typically relative to the directory containing the symlink,
     // so resolve them against the symlink's parent directory but verify the final
     // location against the extraction base directory.
-    Path linkParent = destPath.getParent() != null ? destPath.getParent() : baseDirPath;
+    Path destParent = destPath.getParent();
+    Path linkParent = destParent != null ? destParent : baseDirPath;
     Path resolvedLinkTarget = linkParent.resolve(tarEntry.getLinkName()).normalize();
     if (!resolvedLinkTarget.startsWith(baseDirPath.toAbsolutePath().normalize())) {
       throw new IOException("Symbolic link target is outside of the target directory: "
           + tarEntry.getName() + " -> " + tarEntry.getLinkName());
     }
-    if (destPath.getParent() != null) {
-      Files.createDirectories(destPath.getParent());
+    if (destParent != null) {
+      Files.createDirectories(destParent);
     }
     Files.createSymbolicLink(destPath, Path.of(tarEntry.getLinkName()));
   }
 
   private static long extractFile(TarArchiveInputStream tarIn, Path destPath, long totalBytes) throws IOException {
-    if (destPath.getParent() != null) {
-      Files.createDirectories(destPath.getParent());
+    Path destParent = destPath.getParent();
+    if (destParent != null) {
+      Files.createDirectories(destParent);
     }
     long newTotal;
     try (OutputStream bout = new BufferedOutputStream(Files.newOutputStream(destPath))) {
