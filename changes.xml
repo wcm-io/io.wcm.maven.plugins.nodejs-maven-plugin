@@ -28,6 +28,9 @@
       <action type="update" dev="sseifert">
         Switch to Java 21.
       </action>
+      <action type="fix" dev="sseifert" issue="58">
+        Improve File/Zip/Tar file I/O and security handling.
+      </action>
     </release>
 
     <release version="3.0.8" date="2024-06-04">

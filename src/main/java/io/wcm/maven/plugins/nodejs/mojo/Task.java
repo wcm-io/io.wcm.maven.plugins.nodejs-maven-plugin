@@ -21,6 +21,7 @@ package io.wcm.maven.plugins.nodejs.mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,12 @@ public class Task {
     ProcessBuilder processBuilder = new ProcessBuilder(getCommand(information));
     if (workingDirectory != null) {
       if (!workingDirectory.exists()) {
-        workingDirectory.mkdir();
+        try {
+          Files.createDirectories(workingDirectory.toPath());
+        }
+        catch (IOException ex) {
+          throw new MojoExecutionException("Could not create working directory: " + workingDirectory.getAbsolutePath(), ex);
+        }
       }
       processBuilder.directory(workingDirectory);
     }
