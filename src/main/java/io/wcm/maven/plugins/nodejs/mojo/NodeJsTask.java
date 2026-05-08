@@ -71,6 +71,7 @@ public class NodeJsTask extends Task {
     commands.add(moduleExecutable);
   }
 
+  @SuppressWarnings("NP_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD")
   private String installModule(NodeInstallationInformation information) throws MojoExecutionException {
     String modulePath = "";
     String localInstallationPath = workingDirectory.getAbsolutePath() + File.separator + "node_modules" + File.separator + moduleName;

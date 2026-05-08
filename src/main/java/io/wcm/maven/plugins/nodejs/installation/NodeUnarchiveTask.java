@@ -34,7 +34,7 @@ import io.wcm.maven.plugins.nodejs.mojo.Task;
  */
 public class NodeUnarchiveTask extends Task {
 
-  protected String nodeJsDirectory;
+  private String nodeJsDirectory;
 
   /**
    * @param nodeJsDirectory nodejs directory
