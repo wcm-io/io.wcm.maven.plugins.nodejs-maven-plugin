@@ -49,6 +49,7 @@ public class TarUnArchiver {
   private final File archive;
 
   /**
+   * Constructor
    * @param archive Archive
    */
   public TarUnArchiver(File archive) {

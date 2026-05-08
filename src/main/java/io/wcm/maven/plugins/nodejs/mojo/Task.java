@@ -124,6 +124,7 @@ public class Task {
   }
 
   /**
+   * Builds the list of commands to execute for this task.
    * @param information about the node installation
    * @return {@link List} of commands which will be executed by the task
    * @throws MojoExecutionException Mojo execution exception
@@ -132,14 +133,26 @@ public class Task {
     return List.of();
   }
 
+  /**
+   * Returns the Maven logger.
+   * @return Maven logger
+   */
   public Log getLog() {
     return log;
   }
 
+  /**
+   * Sets the Maven logger.
+   * @param log Maven logger
+   */
   public void setLog(Log log) {
     this.log = log;
   }
 
+  /**
+   * Returns whether a working directory must be set for this task.
+   * @return whether a working directory must be set for this task
+   */
   protected boolean isWorkingDirectoryMandatory() {
     return false;
   }

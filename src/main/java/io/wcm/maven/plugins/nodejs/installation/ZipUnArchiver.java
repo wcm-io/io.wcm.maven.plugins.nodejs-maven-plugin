@@ -46,6 +46,7 @@ public class ZipUnArchiver {
   private final File archive;
 
   /**
+   * Constructor
    * @param archive Archive
    */
   public ZipUnArchiver(File archive) {

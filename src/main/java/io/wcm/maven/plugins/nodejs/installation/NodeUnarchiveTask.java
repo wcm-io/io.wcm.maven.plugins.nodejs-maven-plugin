@@ -37,6 +37,7 @@ public class NodeUnarchiveTask extends Task {
   private String nodeJsDirectory;
 
   /**
+   * Constructor
    * @param nodeJsDirectory nodejs directory
    */
   public NodeUnarchiveTask(String nodeJsDirectory) {
