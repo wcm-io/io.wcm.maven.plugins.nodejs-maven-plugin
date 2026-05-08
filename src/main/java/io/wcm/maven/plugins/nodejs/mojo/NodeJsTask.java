@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.jetbrains.annotations.NotNull;
 
 import io.wcm.maven.plugins.nodejs.installation.NodeInstallationInformation;
 
@@ -53,7 +54,7 @@ public class NodeJsTask extends Task {
   private String[] arguments;
 
   @Override
-  protected List<String> getCommand(NodeInstallationInformation information) throws MojoExecutionException {
+  protected @NotNull List<String> getCommand(NodeInstallationInformation information) throws MojoExecutionException {
     List<String> commands = new ArrayList<>();
     commands.add(information.getNodeExecutable().getAbsolutePath());
     setNodeModule(commands, information);

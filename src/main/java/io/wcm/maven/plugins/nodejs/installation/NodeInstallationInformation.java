@@ -133,6 +133,7 @@ public class NodeInstallationInformation {
    * @return {@link NodeInstallationInformation}
    * @throws MojoExecutionException Mojo execution exception
    */
+  @SuppressWarnings("java:S1192") // string duplication intended
   public static NodeInstallationInformation forVersion(String version, String npmVersion, File directory) throws MojoExecutionException {
     int nodejsMajorVersion = getMajorVersion(version);
 

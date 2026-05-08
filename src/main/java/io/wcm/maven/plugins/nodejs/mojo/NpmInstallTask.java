@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.wcm.maven.plugins.nodejs.installation.NodeInstallationInformation;
 
 /**
@@ -34,7 +36,7 @@ public class NpmInstallTask extends Task {
   private boolean npmBundledWithNodeJs;
 
   @Override
-  protected List<String> getCommand(NodeInstallationInformation information) {
+  protected @NotNull List<String> getCommand(NodeInstallationInformation information) {
     List<String> commands = new ArrayList<>();
     String nodeExecutable = information.getNodeExecutable().getAbsolutePath();
     String npmExecutable;

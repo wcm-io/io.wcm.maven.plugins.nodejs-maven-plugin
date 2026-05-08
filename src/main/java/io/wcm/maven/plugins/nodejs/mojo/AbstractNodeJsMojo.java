@@ -49,6 +49,7 @@ import io.wcm.maven.plugins.nodejs.installation.NodeUnarchiveTask;
 /**
  * Common Node.js Mojo functionality.
  */
+@SuppressWarnings("java:S6813") // allow field injection
 public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
   /**
@@ -166,12 +167,15 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
     if (tasks != null) {
       for (Task task : tasks) {
-        task.setLog(getLog());
-        task.execute(information);
+        if (task != null) {
+          task.setLog(getLog());
+          task.execute(information);
+        }
       }
     }
   }
 
+  @SuppressWarnings("PMD.ExceptionAsFlowControl")
   private NodeInstallationInformation getOrInstallNodeJS() throws MojoExecutionException {
     NodeInstallationInformation information = NodeInstallationInformation.forVersion(cleanupVersion(nodeJsVersion), npmVersion, nodeJsDirectory);
     try {
@@ -220,7 +224,11 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
     }
 
     if (information.getArchive().exists()) {
-      if (!information.getArchive().delete()) {
+      try {
+        java.nio.file.Files.delete(information.getArchive().toPath());
+      }
+      catch (IOException ex) {
+        getLog().error("Error deleting archive: " + information.getArchive().getPath(), ex);
         return false;
       }
     }
@@ -255,10 +263,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
     try {
       resolver.resolve(artifact, project.getRemoteArtifactRepositories(), session.getLocalRepository());
     }
-    catch (ArtifactResolutionException ex) {
-      throw new MojoExecutionException("Unable to get artifact for " + dependency, ex);
-    }
-    catch (ArtifactNotFoundException ex) {
+    catch (ArtifactResolutionException | ArtifactNotFoundException ex) {
       throw new MojoExecutionException("Unable to get artifact for " + dependency, ex);
     }
     return artifact.getFile();
