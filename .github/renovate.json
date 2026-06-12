@@ -9,7 +9,7 @@
   "ignoreDeps": [
     "org.apache.maven:maven-plugin-api",
     "org.apache.maven:maven-artifact",
-    "org.apache.maven:maven-compat",
+    "org.apache.maven:maven-core",
     "org.apache.maven.plugins:maven-plugin-plugin"
   ]
 }
