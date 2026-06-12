@@ -28,6 +28,9 @@
       <action type="update" dev="sseifert">
         Switch to Java 21.
       </action>
+      <action type="update" dev="sseifert" issue="60">
+        Eliminate usage of maven-compat.
+      </action>
       <action type="fix" dev="sseifert" issue="58">
         Improve reliability and security of File/Zip/Tar handling.
       </action>
