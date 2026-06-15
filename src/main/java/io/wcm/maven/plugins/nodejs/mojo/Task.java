@@ -21,6 +21,7 @@ package io.wcm.maven.plugins.nodejs.mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.Os;
+import org.jetbrains.annotations.NotNull;
 
 import io.wcm.maven.plugins.nodejs.installation.NodeInstallationInformation;
 
@@ -50,11 +52,16 @@ public class Task {
    * @param information Information
    * @throws MojoExecutionException Mojo execution exception
    */
-  public void execute(NodeInstallationInformation information) throws MojoExecutionException {
+  public void execute(@NotNull NodeInstallationInformation information) throws MojoExecutionException {
     ProcessBuilder processBuilder = new ProcessBuilder(getCommand(information));
     if (workingDirectory != null) {
       if (!workingDirectory.exists()) {
-        workingDirectory.mkdir();
+        try {
+          Files.createDirectories(workingDirectory.toPath());
+        }
+        catch (IOException ex) {
+          throw new MojoExecutionException("Could not create working directory: " + workingDirectory.getAbsolutePath(), ex);
+        }
       }
       processBuilder.directory(workingDirectory);
     }
@@ -80,6 +87,7 @@ public class Task {
       throw new MojoExecutionException("Error executing process: " + StringUtils.join(processBuilder.command(), " "), ex);
     }
     catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
       throw new MojoExecutionException("Error executing process: " + StringUtils.join(processBuilder.command(), " "), ex);
     }
   }
@@ -99,10 +107,11 @@ public class Task {
     String pathVariableName = PATH_VARIABLE_NAME;
     String pathValue = environment.get(pathVariableName);
     if (Os.isFamily(Os.FAMILY_WINDOWS) || Os.isFamily(Os.FAMILY_WIN9X)) {
-      for (String key : environment.keySet()) {
+      for (Map.Entry<String, String> entry : environment.entrySet()) {
+        String key = entry.getKey();
         if (PATH_VARIABLE_NAME.equalsIgnoreCase(key)) {
           pathVariableName = key;
-          pathValue = environment.get(key);
+          pathValue = entry.getValue();
         }
       }
     }
@@ -115,22 +124,35 @@ public class Task {
   }
 
   /**
+   * Builds the list of commands to execute for this task.
    * @param information about the node installation
    * @return {@link List} of commands which will be executed by the task
    * @throws MojoExecutionException Mojo execution exception
    */
-  protected List<String> getCommand(NodeInstallationInformation information) throws MojoExecutionException {
-    return null;
+  protected @NotNull List<String> getCommand(NodeInstallationInformation information) throws MojoExecutionException {
+    return List.of();
   }
 
+  /**
+   * Returns the Maven logger.
+   * @return Maven logger
+   */
   public Log getLog() {
     return log;
   }
 
+  /**
+   * Sets the Maven logger.
+   * @param log Maven logger
+   */
   public void setLog(Log log) {
     this.log = log;
   }
 
+  /**
+   * Returns whether a working directory must be set for this task.
+   * @return whether a working directory must be set for this task
+   */
   protected boolean isWorkingDirectoryMandatory() {
     return false;
   }

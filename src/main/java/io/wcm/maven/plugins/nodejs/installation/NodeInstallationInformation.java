@@ -53,6 +53,10 @@ public class NodeInstallationInformation {
   private String nodeModulesBuiltInRootPath;
   private String nodeModulesRootPath;
 
+  /**
+   * Returns the Node.js dependency.
+   * @return Node.js dependency
+   */
   public Dependency getNodeJsDependency() {
     return this.nodeJsDependency;
   }
@@ -61,6 +65,10 @@ public class NodeInstallationInformation {
     this.nodeJsDependency = nodeJsDependency;
   }
 
+  /**
+   * Returns the npm dependency.
+   * @return npm dependency
+   */
   public Dependency getNpmDependency() {
     return this.npmDependency;
   }
@@ -69,6 +77,10 @@ public class NodeInstallationInformation {
     this.npmDependency = npmDependency;
   }
 
+  /**
+   * Returns the Node.js archive file.
+   * @return Node.js archive file
+   */
   public File getArchive() {
     return archive;
   }
@@ -77,6 +89,10 @@ public class NodeInstallationInformation {
     this.archive = archive;
   }
 
+  /**
+   * Returns the Node.js executable file.
+   * @return Node.js executable file
+   */
   public File getNodeExecutable() {
     return new File(this.nodeJsInstallPath + File.separator + nodeExecutableRelativePath);
   }
@@ -85,14 +101,26 @@ public class NodeInstallationInformation {
     this.nodeExecutableRelativePath = nodeExecutableRelativePath;
   }
 
+  /**
+   * Returns the npm executable file resolved from the npm prefix path.
+   * @return npm executable file resolved from the npm prefix path
+   */
   public File getNpmExecutable() {
     return new File(this.nodeModulesRootPath + File.separator + "node_modules" + NPM_CLI_EXECUTABLE_PATH);
   }
 
+  /**
+   * Returns the npm executable file bundled with Node.js.
+   * @return npm executable file bundled with Node.js
+   */
   public File getNpmExecutableBundledWithNodeJs() {
     return new File(this.nodeModulesBuiltInRootPath + File.separator + "node_modules" + NPM_CLI_EXECUTABLE_PATH);
   }
 
+  /**
+   * Returns the Node.js installation path.
+   * @return Node.js installation path
+   */
   public String getNodeJsInstallPath() {
     return nodeJsInstallPath;
   }
@@ -101,14 +129,26 @@ public class NodeInstallationInformation {
     this.nodeJsInstallPath = nodeJsInstallPath;
   }
 
+  /**
+   * Returns the npm prefix path.
+   * @return npm prefix path
+   */
   public String getNpmPrefixPath() {
     return this.npmPrefixPath;
   }
 
+  /**
+   * Sets the npm prefix path.
+   * @param npmPrefixPath npm prefix path
+   */
   public void setNpmPrefixPath(String npmPrefixPath) {
     this.npmPrefixPath = npmPrefixPath;
   }
 
+  /**
+   * Returns the root path of node modules built-in with Node.js.
+   * @return root path of node modules built-in with Node.js
+   */
   public String getNodeModulesBuiltInRootPath() {
     return this.nodeModulesBuiltInRootPath;
   }
@@ -117,6 +157,10 @@ public class NodeInstallationInformation {
     this.nodeModulesBuiltInRootPath = nodeModulesBuiltInRootPath;
   }
 
+  /**
+   * Returns the root path of node modules.
+   * @return root path of node modules
+   */
   public String getNodeModulesRootPath() {
     return this.nodeModulesRootPath;
   }
@@ -133,6 +177,7 @@ public class NodeInstallationInformation {
    * @return {@link NodeInstallationInformation}
    * @throws MojoExecutionException Mojo execution exception
    */
+  @SuppressWarnings("java:S1192") // string duplication intended
   public static NodeInstallationInformation forVersion(String version, String npmVersion, File directory) throws MojoExecutionException {
     int nodejsMajorVersion = getMajorVersion(version);
 

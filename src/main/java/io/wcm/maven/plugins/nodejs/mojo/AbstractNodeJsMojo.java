@@ -23,23 +23,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
-import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
-import org.apache.maven.artifact.resolver.ArtifactResolutionException;
-import org.apache.maven.artifact.resolver.ArtifactResolver;
+import org.apache.commons.lang3.Strings;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 
 import io.wcm.maven.plugins.nodejs.installation.NodeInstallationInformation;
 import io.wcm.maven.plugins.nodejs.installation.NodeUnarchiveTask;
@@ -47,6 +48,7 @@ import io.wcm.maven.plugins.nodejs.installation.NodeUnarchiveTask;
 /**
  * Common Node.js Mojo functionality.
  */
+@SuppressWarnings("java:S6813") // allow field injection
 public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
   /**
@@ -69,9 +71,11 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
   /**
    * Tasks that should be run on Node.js execution.
+   *
    * <p>
    * You can define different types of tasks: <code>npmInstallTask</code> or <code>nodeJsTask</code> items.
    * </p>
+   *
    * <p>
    * Example 1:
    * </p>
@@ -91,6 +95,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
    *   &lt;/nodeJsTask&gt;
    * &lt;/tasks&gt;
    * </pre>
+   *
    * <p>
    * Example 2:
    * </p>
@@ -127,14 +132,12 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
   @Parameter(property = "nodejs.skip")
   protected boolean skip;
 
-  @Parameter(defaultValue = "${project}", readonly = true)
-  private MavenProject project;
-  @Parameter(defaultValue = "${session}", readonly = true)
-  private MavenSession session;
-  @Component
-  private ArtifactHandlerManager artifactHandlerManager;
-  @Component
-  private ArtifactResolver resolver;
+  @Parameter(defaultValue = "${repositorySystemSession}", readonly = true)
+  private RepositorySystemSession repoSession;
+  @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true)
+  private List<RemoteRepository> remoteRepositories;
+  @Inject
+  private RepositorySystem repoSystem;
 
   private static final ComparableVersion NODEJS_MIN_VERSION = new ComparableVersion("6.3.0");
 
@@ -161,12 +164,15 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
 
     if (tasks != null) {
       for (Task task : tasks) {
-        task.setLog(getLog());
-        task.execute(information);
+        if (task != null) {
+          task.setLog(getLog());
+          task.execute(information);
+        }
       }
     }
   }
 
+  @SuppressWarnings("PMD.ExceptionAsFlowControl")
   private NodeInstallationInformation getOrInstallNodeJS() throws MojoExecutionException {
     NodeInstallationInformation information = NodeInstallationInformation.forVersion(cleanupVersion(nodeJsVersion), npmVersion, nodeJsDirectory);
     try {
@@ -215,7 +221,11 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
     }
 
     if (information.getArchive().exists()) {
-      if (!information.getArchive().delete()) {
+      try {
+        java.nio.file.Files.delete(information.getArchive().toPath());
+      }
+      catch (IOException ex) {
+        getLog().error("Error deleting archive: " + information.getArchive().getPath(), ex);
         return false;
       }
     }
@@ -238,25 +248,22 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
     npmInstallTask.execute(information);
   }
 
-  @SuppressWarnings("deprecation")
   private File resolveArtifact(Dependency dependency) throws MojoExecutionException {
     Artifact artifact = new DefaultArtifact(dependency.getGroupId(),
         dependency.getArtifactId(),
-        VersionRange.createFromVersion(dependency.getVersion()),
-        Artifact.SCOPE_PROVIDED,
-        dependency.getType(),
         dependency.getClassifier(),
-        artifactHandlerManager.getArtifactHandler(dependency.getType()));
+        dependency.getType(),
+        dependency.getVersion());
+    ArtifactRequest request = new ArtifactRequest();
+    request.setArtifact(artifact);
+    request.setRepositories(remoteRepositories);
     try {
-      resolver.resolve(artifact, project.getRemoteArtifactRepositories(), session.getLocalRepository());
+      ArtifactResult result = repoSystem.resolveArtifact(repoSession, request);
+      return result.getArtifact().getFile();
     }
     catch (ArtifactResolutionException ex) {
       throw new MojoExecutionException("Unable to get artifact for " + dependency, ex);
     }
-    catch (ArtifactNotFoundException ex) {
-      throw new MojoExecutionException("Unable to get artifact for " + dependency, ex);
-    }
-    return artifact.getFile();
   }
 
   /**
@@ -265,7 +272,7 @@ public abstract class AbstractNodeJsMojo extends AbstractMojo {
    * @return Version number
    */
   private static String cleanupVersion(String version) {
-    return StringUtils.removeStart(version, "v");
+    return Strings.CS.removeStart(version, "v");
   }
 
 }

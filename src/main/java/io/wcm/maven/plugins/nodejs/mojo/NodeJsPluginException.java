@@ -27,6 +27,7 @@ public class NodeJsPluginException extends Exception {
   private static final long serialVersionUID = 1L;
 
   /**
+   * Constructor
    * @param message Message
    */
   public NodeJsPluginException(String message) {

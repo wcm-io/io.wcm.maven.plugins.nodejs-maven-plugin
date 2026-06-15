@@ -52,6 +52,6 @@ Sources: https://github.com/wcm-io/io.wcm.maven.plugins.nodejs-maven-plugin
 
 [usage]: usage.html
 [plugindocs]: plugin-info.html
-[changelog]: changes-report.html
+[changelog]: changes.html
 [maven-nodejs-proxy]: https://github.com/wcm-io-devops/maven-nodejs-proxy
 [frontend-maven-plugin]: https://github.com/eirslett/frontend-maven-plugin

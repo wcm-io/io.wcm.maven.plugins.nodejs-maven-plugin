@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+
 import io.wcm.maven.plugins.nodejs.installation.NodeInstallationInformation;
 
 /**
@@ -34,7 +36,7 @@ public class NpmInstallTask extends Task {
   private boolean npmBundledWithNodeJs;
 
   @Override
-  protected List<String> getCommand(NodeInstallationInformation information) {
+  protected @NotNull List<String> getCommand(NodeInstallationInformation information) {
     List<String> commands = new ArrayList<>();
     String nodeExecutable = information.getNodeExecutable().getAbsolutePath();
     String npmExecutable;
@@ -53,18 +55,34 @@ public class NpmInstallTask extends Task {
     return commands;
   }
 
+  /**
+   * Returns additional arguments passed to npm install.
+   * @return additional arguments passed to npm install
+   */
   public String[] getArguments() {
     return arguments;
   }
 
+  /**
+   * Sets additional arguments passed to npm install.
+   * @param arguments additional arguments passed to npm install
+   */
   public void setArguments(String[] arguments) {
     this.arguments = arguments;
   }
 
+  /**
+   * Returns whether to use the npm version bundled with Node.js.
+   * @return whether to use the npm version bundled with Node.js
+   */
   public boolean isNpmBundledWithNodeJs() {
     return this.npmBundledWithNodeJs;
   }
 
+  /**
+   * Sets whether to use the npm version bundled with Node.js.
+   * @param npmBundledWithNodeJs whether to use the npm version bundled with Node.js
+   */
   public void setNpmBundledWithNodeJs(boolean npmBundledWithNodeJs) {
     this.npmBundledWithNodeJs = npmBundledWithNodeJs;
   }

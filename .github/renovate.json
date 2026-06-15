@@ -1,0 +1,15 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>wcm-io/renovate-config:maven",
+    "github>wcm-io/renovate-config:automerge-parent",
+    "github>wcm-io/renovate-config:automerge-trusted-3rdparty",
+    "github>wcm-io/renovate-config:automerge-testing"
+  ],
+  "ignoreDeps": [
+    "org.apache.maven:maven-plugin-api",
+    "org.apache.maven:maven-artifact",
+    "org.apache.maven:maven-core",
+    "org.apache.maven.plugins:maven-plugin-plugin"
+  ]
+}
